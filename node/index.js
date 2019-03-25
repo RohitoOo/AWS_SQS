@@ -29,9 +29,9 @@ app.get("/create_queue", (req, res) => {
   })
 })
 
-// Listing Available Sqs Messages
+// Listing Available Sqs Queues
 
-app.get("/list_messages", (req, res) => {
+app.get("/queues", (req, res) => {
   sqs.listQueues(function(err, data) {
     res.send(data.QueueUrls)
   })
@@ -43,8 +43,28 @@ app.get("/send_message", (req, res) => {
   const params = {
     QueueUrl,
     MessageBody: JSON.stringify({
-      name: "Rohito",
+      name: "Bhambhani",
       message: "How far?"
+    })
+    // Other Options
+  }
+  sqs.sendMessage(params, function(err, data) {
+    if (err) {
+      res.send(err)
+    } else {
+      res.send(data)
+    }
+  })
+})
+
+// Sending a Message
+
+app.get("/send_message_2", (req, res) => {
+  const params = {
+    QueueUrl,
+    MessageBody: JSON.stringify({
+      name: "Rohito Bhambhani",
+      message: "How far? How your Body?"
     })
     // Other Options
   }
@@ -61,7 +81,9 @@ app.get("/send_message", (req, res) => {
 
 app.get("/get_message", (req, res) => {
   const params = {
-    QueueUrl
+    QueueUrl,
+    // MaxNumberOfMessages: 10,
+    VisibilityTimeout: 4
     // Other Options
   }
   sqs.receiveMessage(params, function(err, data) {
@@ -70,23 +92,26 @@ app.get("/get_message", (req, res) => {
     } else {
       res.send(data)
       const { name } = JSON.parse(data.Messages[0].Body)
-      console.log(name)
+      const receipt = data.Messages[0].ReceiptHandle
+
+      console.log("MESSAGES", data)
+      console.log("Name", name)
+      console.log("Receipt", receipt)
 
       // Delete The Message After Processing It
 
-      // var params = {
-      //   QueueUrl: queueUrl,
-      //   ReceiptHandle: receipt
-      // };
+      var delete_params = {
+        QueueUrl,
+        ReceiptHandle: receipt
+      }
 
-      // sqs.deleteMessage(params, function(err, data) {
-      //   if(err) {
-      //       res.send(err);
-      //   }
-      //   else {
-      //       res.send(data);
-      //   }
-      // });
+      sqs.deleteMessage(delete_params, function(err, data) {
+        if (err) {
+          console.log(err)
+        } else {
+          console.log("Deleted Message", data)
+        }
+      })
     }
   })
 })

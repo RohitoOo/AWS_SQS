@@ -94,9 +94,9 @@ app.get("/get_message", (req, res) => {
       const { name } = JSON.parse(data.Messages[0].Body)
       const receipt = data.Messages[0].ReceiptHandle
 
-      console.log("MESSAGES", data)
-      console.log("Name", name)
-      console.log("Receipt", receipt)
+      // console.log("MESSAGES", data)
+      // console.log("Name", name)
+      // console.log("Receipt", receipt)
 
       // Delete The Message After Processing It
 
@@ -112,6 +112,21 @@ app.get("/get_message", (req, res) => {
           console.log("Deleted Message", data)
         }
       })
+    }
+  })
+})
+
+// Purging the entire queue.
+app.get("/purge", function(req, res) {
+  var params = {
+    QueueUrl
+  }
+
+  sqs.purgeQueue(params, function(err, data) {
+    if (err) {
+      res.send(err)
+    } else {
+      res.send(data)
     }
   })
 })

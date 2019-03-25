@@ -17,7 +17,11 @@ const sqs = new aws.SQS()
 
 app.get("/create", (req, res) => {
   const params = {
-    QueueName: "MyFirstQueue"
+    QueueName: "Queue-1",
+    info: {
+      name: "Rohito",
+      message: "How far?"
+    }
   }
   sqs.createQueue(params, function(err, data) {
     if (err) {
@@ -26,6 +30,14 @@ app.get("/create", (req, res) => {
       res.send(data)
       // QueueUrl: "https://sqs.us-east-2.amazonaws.com/260532539243/MyFirstQueue"
     }
+  })
+})
+
+// Listing Available Sqs Messages
+
+app.get("/list_messages", (req, res) => {
+  sqs.listQueues(function(err, data) {
+    res.send(data.QueueUrls)
   })
 })
 
